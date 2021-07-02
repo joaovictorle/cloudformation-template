@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+    CIDRIPBlock:
+        Description: bloco de endereco IP
+        Default: 10.20.10.0/24
+        Type: String
+Resources:
+    VPC:
+        Type: AWS::EC2::VPC
+        Properties: 
+            CidrBlock: !Ref CIDRIPBlock
+            EnableDnsHostnames: True
+            EnableDnsSupport: True
+            Tags: 
+              - Key: Owner
+                Value: Joao
