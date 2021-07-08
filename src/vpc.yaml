@@ -15,3 +15,103 @@ Resources:
             Tags: 
               - Key: Owner
                 Value: Joao
+    InternetGateway:
+        Type: AWS::EC2::InternetGateway
+        DependsOn: VPC
+        Properties:
+            Tags:
+            - Key: Name
+              Value: Vpc-test
+    AttachGateway:
+        Type: AWS::EC2::VPCGatewayAttachment
+        Properties:
+            VpcId: !Ref VPC
+            InternetGatewayId: !Ref InternetGateway
+
+    NATGateway:
+        Type: AWS::EC2::NatGateway
+        Properties:
+            AllocationId: !GetAtt ElasticIPAddress.AllocationId
+            SubnetId: !Ref PublicSubnetA
+            Tags:
+            - Key: Name
+              Value: Vpc-test
+    PublicSubnetA:
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            CidrBlock: 10.20.10.0/26
+            AvailabilityZone: !Sub ${AWS::Region}a
+            Tags:
+            - Key: Name
+              Value: Vpc-test-Public-A
+
+    PublicSubnetB:
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            CidrBlock: 10.20.10.64/26
+            AvailabilityZone: !Sub ${AWS::Region}b
+            Tags:
+            - Key: Name
+              Value: Vpc-test-Public-B
+    PrivateSubnetA:
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            CidrBlock: 10.20.10.128/26
+            AvailabilityZone: !Sub ${AWS::Region}a
+            Tags:
+            - Key: Name
+              Value: Vpc-test-Private-A
+
+    PrivateSubnetB:
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            CidrBlock: 10.20.10.192/26
+            AvailabilityZone: !Sub ${AWS::Region}b
+            Tags:
+            - Key: Name
+              Value: Vpc-test-Private-B
+    # Some route tables for our subnets:
+    PublicRouteTable:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId: !Ref VPC
+            Tags:
+            - Key: Name
+              Value: Vpc-test-Public-route
+
+    PublicRoute1:   # Public route table has direct routing to IGW:
+        Type: AWS::EC2::Route
+        DependsOn: AttachGateway
+        Properties:
+            RouteTableId: !Ref PublicRouteTable
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId: !Ref InternetGateway  
+
+    # Here is a private route table:
+    PrivateRouteTable:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId: !Ref VPC
+            Tags:
+            - Key: Name
+              Value: Vpc-test-Private-route
+
+    PrivateRoute1: # Private route table can access web via NAT (created below)
+        Type: AWS::EC2::Route
+        Properties:
+            RouteTableId: !Ref PrivateRouteTable
+            DestinationCidrBlock: 0.0.0.0/0
+            # Route traffic through the NAT Gateway:
+            NatGatewayId: !Ref NATGateway
+
+    ElasticIPAddress:
+        Type: AWS::EC2::EIP
+        Properties:
+            Domain: vpc
+            Tags:
+            - Key: Name
+              Value: Vpc-test-EIP
