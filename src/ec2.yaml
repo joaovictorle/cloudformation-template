@@ -1,0 +1,23 @@
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupDescription: Allow ssh to client host
+        VpcId: vpc-0b4292024961d0b0e
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  Instance:      
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: ami-0747bdcabd34c712a
+      InstanceType: t2.micro
+      KeyName: kp-victor
+      SecurityGroupIds: 
+        - !Ref InstanceSecurityGroup
+      SubnetId: subnet-007f919aaa3e818e1
+      Tags: 
+        - Key: Name
+          Value: instancia-victor
