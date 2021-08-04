@@ -137,3 +137,15 @@ Resources:
         Properties:
             SubnetId: !Ref PrivateSubnetB
             RouteTableId: !Ref PrivateRouteTable
+
+Outputs:
+  StackVPC:
+    Description: The ID of the VPC
+    Value: !Ref VPC
+    Export:
+      Name: !Sub "VpcId"
+  PublicSubnetA:
+    Description: The ID of the VPC
+    Value: !Ref PublicSubnetA
+    Export:
+      Name: !Sub "PublicSubnetAId"
