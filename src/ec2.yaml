@@ -3,7 +3,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
         GroupDescription: Allow ssh to client host
-        VpcId: vpc-0b4292024961d0b0e
+        VpcId: !ImportValue VpcId
         SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -17,7 +17,7 @@ Resources:
       KeyName: kp-victor
       SecurityGroupIds: 
         - !Ref InstanceSecurityGroup
-      SubnetId: subnet-007f919aaa3e818e1
+      SubnetId: !ImportValue PublicSubnetId
       Tags: 
         - Key: Name
           Value: instancia-victor
